@@ -1,0 +1,18 @@
+# 非構造化データ（ソース元）- バイナリファイルは Git 管理外
+*.pptx
+*.docx
+*.xlsx
+*.pdf
+
+# staging 一時ファイル（変換中間生成物）
+docs/staging/*.json
+docs/staging/*.csv
+docs/staging/*.txt
+!docs/staging/.gitkeep
+
+# prompts 一時ファイル（変換中間生成物）
+.github\prompts\GetStart.md
+
+# Node.js dependencies
+node_modules/
+

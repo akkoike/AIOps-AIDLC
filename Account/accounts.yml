@@ -1,0 +1,25 @@
+# アカウントメタ情報
+# 構成管理・資産管理の対象スコープを定義します。
+# subscriptions[].resource_groups は複数指定可能です。
+
+accounts:
+  - account_name: ${alias}
+      domain: "@${domain}"
+    upn: "${alias}@${domain}"
+    subscriptions:
+      - subscription_name: ${subscription_name}
+        subscription_id: ${subscription_id}
+        resource_groups:
+          - ${resource_group_name}
+
+# --- 追加例 ---
+# accounts:
+#   - account_name: <アカウント名>
+#     domain: <ドメイン (例: @microsoft.com)>
+#     upn: <UPN (例: account@microsoft.com)>
+#     subscriptions:
+#       - subscription_name: <サブスクリプション表示名>
+#         subscription_id: <GUID形式のサブスクリプションID>
+#         resource_groups:
+#           - <リソースグループ名1>
+#           - <リソースグループ名2>
