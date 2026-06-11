@@ -26,10 +26,15 @@
 | 項目 | 設定 | 理由 |
 |------|------|------|
 | Require pull request reviews before merging | ✓ | PR 経由でのみマージを許可 |
+| Required approving reviews | **0**（1人運用のため） | 本人が自分のPRを承認できない制約への対処 |
 | Require status checks to pass before merging | ○ | 必要に応じて（CI/CD が有効な場合） |
 | Dismiss stale pull request approvals when new commits are pushed | ✓ | コミット後に再レビューを要求 |
 | Require branches to be up to date before merging | ✓ | マージ前に最新版と同期を要求 |
 | Include administrators | ✓ | 管理者も同じルールに従う |
+
+> **1人運用の注意点**  
+> GitHub の仕様上、PR作成者本人は自分のPRを Approve できません。  
+> 複数人運用に移行した場合は `Required approving reviews` を 1 以上に変更してください。
 
 ### 1.4 保存
 
