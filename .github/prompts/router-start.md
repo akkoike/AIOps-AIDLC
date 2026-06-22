@@ -10,7 +10,7 @@
 1. このチャットで「ヒアリング開始」と入力する。
 2. Copilot が 7 つの質問を順番に実施する（各質問で選択肢 + 自由入力）。
 3. 回答内容からカテゴリを自動判定する。
-4. 判定カテゴリの `categories/<category>/01_specify/<request-folder>/requirements.md` を自動生成/更新する。
+4. 判定カテゴリの全工程（`01_specify` `02_plan` `03_tasks` `04_implement` `05_verify` `06_migration` `output`）配下ファイルを自動生成/更新する。
 
 ### オプション 2: 手動実行（プロンプト入力）
 
@@ -74,7 +74,7 @@
 1. まずカテゴリを 01〜12 から1つ選ぶ（複数候補がある場合は第1候補と第2候補を提示）。
 2. 判定根拠をキーワードベースで明記する。
 3. 更新対象は必ず `categories/<category>/` 配下を使う。
-4. 初回は `01_specify/<依頼内容に応じたフォルダ名>/requirements.md` を起点にする。
+4. 初回から `01_specify` `02_plan` `03_tasks` `04_implement` `05_verify` `06_migration` `output` の全工程を更新対象に含める。
 5. `01_specify` だけでなく `02_plan` `03_tasks` `04_implement` `05_verify` `06_migration` `output` も、依頼ごとの新規フォルダ（`<request-folder>`）配下にマークダウンを配置する。
    - フォルダ名は依頼タイトルを英数字ハイフン区切りへ正規化して作成する。
    - 例: `ai-ops-task-web-ui`
@@ -166,8 +166,14 @@ Q7. 受入条件: 2 (SLA遵守)
 第1候補: 01 - 監視_モニタリング (スコア: 8)
 ```
 
-**自動生成されるファイル:**
-→ `categories/01_監視_モニタリング/01_specify/cpu-alert-threshold-tuning/requirements.md`
+**自動生成されるファイル（全工程）:**
+- `categories/01_監視_モニタリング/01_specify/cpu-alert-threshold-tuning/requirements.md`
+- `categories/01_監視_モニタリング/02_plan/cpu-alert-threshold-tuning/plan.md`
+- `categories/01_監視_モニタリング/03_tasks/cpu-alert-threshold-tuning/tasks.md`
+- `categories/01_監視_モニタリング/04_implement/cpu-alert-threshold-tuning/implement.md`
+- `categories/01_監視_モニタリング/05_verify/cpu-alert-threshold-tuning/verification.md`
+- `categories/01_監視_モニタリング/06_migration/cpu-alert-threshold-tuning/migration.md`
+- `categories/01_監視_モニタリング/output/cpu-alert-threshold-tuning/result.md`
 
 ### 例 2: 変更管理プロセス改善（変更_リリース管理）
 
@@ -199,8 +205,14 @@ Q7. 受入条件: 3 (手順完了)
 第2候補: 02 - 運用補佐ツール開発_管理 (スコア: 5)
 ```
 
-**自動生成されるファイル:**
-→ `categories/05_変更_リリース管理/01_specify/change-approval-leadtime-reduction/requirements.md`
+**自動生成されるファイル（全工程）:**
+- `categories/05_変更_リリース管理/01_specify/change-approval-leadtime-reduction/requirements.md`
+- `categories/05_変更_リリース管理/02_plan/change-approval-leadtime-reduction/plan.md`
+- `categories/05_変更_リリース管理/03_tasks/change-approval-leadtime-reduction/tasks.md`
+- `categories/05_変更_リリース管理/04_implement/change-approval-leadtime-reduction/implement.md`
+- `categories/05_変更_リリース管理/05_verify/change-approval-leadtime-reduction/verification.md`
+- `categories/05_変更_リリース管理/06_migration/change-approval-leadtime-reduction/migration.md`
+- `categories/05_変更_リリース管理/output/change-approval-leadtime-reduction/result.md`
 
 ### 例 3: セキュリティ脆弱性対応（セキュリティ管理）
 
@@ -230,8 +242,14 @@ Q7. 受入条件: 5 (監査証跡整備)
 第1候補: 07 - セキュリティ管理 (スコア: 9)
 ```
 
-**自動生成されるファイル:**
-→ `categories/07_セキュリティ管理/01_specify/security-vulnerability-remediation/requirements.md`
+**自動生成されるファイル（全工程）:**
+- `categories/07_セキュリティ管理/01_specify/security-vulnerability-remediation/requirements.md`
+- `categories/07_セキュリティ管理/02_plan/security-vulnerability-remediation/plan.md`
+- `categories/07_セキュリティ管理/03_tasks/security-vulnerability-remediation/tasks.md`
+- `categories/07_セキュリティ管理/04_implement/security-vulnerability-remediation/implement.md`
+- `categories/07_セキュリティ管理/05_verify/security-vulnerability-remediation/verification.md`
+- `categories/07_セキュリティ管理/06_migration/security-vulnerability-remediation/migration.md`
+- `categories/07_セキュリティ管理/output/security-vulnerability-remediation/result.md`
 
 ---
 
