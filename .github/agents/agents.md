@@ -258,6 +258,19 @@
 - 証跡リンクの有効性
 - 判定根拠（Pass/Fail）の明示性
 
+### Skills 呼び出しマッピング（明文化）
+| ゲート観点 | 呼び出す skill | 入力対象 | 期待出力 |
+|---|---|---|---|
+| 要件品質ゲート | sdd-requirements-quality-gate | categories/<category>/01_specify/<request-folder>/requirements.md | What/Why・受入条件・出力先整合の指摘 |
+| Specify-Plan 整合ゲート | sdd-spec-plan-alignment | categories/<category>/01_specify/<request-folder>/requirements.md, categories/<category>/02_plan/<request-folder>/plan.md | ドリフト検知結果と修正提案 |
+| Verify 証跡ゲート | sdd-verify-evidence-recorder | categories/<category>/05_verify/<request-folder>/verification.md | 証跡追記済みログと判定根拠の整備 |
+
+### Skills 実行順序（明文化）
+1. 要件作成後、sdd-requirements-quality-gate を実行する。
+2. 設計作成後、sdd-spec-plan-alignment を実行する。
+3. 検証実行後、sdd-verify-evidence-recorder を実行する。
+4. 上記 3 skill の結果を集約し、quality-gate-report.md を出力する。
+
 ### 出力契約
 - ゲート判定:
   - PASS

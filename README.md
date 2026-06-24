@@ -192,6 +192,16 @@
 - **Request Folder**: 各依頼ごとに `<request-folder>` を作成して複数依頼を管理
 - **品質保証**: 3 つの品質ゲートスキル（要件品質、Specify-Plan整合、Verify証跡）で全文書を検証
 
+### 品質ゲート skills 呼び出し対応
+| タイミング | 呼び出す skill | 対象ファイル |
+|---|---|---|
+| Specify 作成後 | sdd-requirements-quality-gate | categories/<category>/01_specify/<request-folder>/requirements.md |
+| Plan 作成後 | sdd-spec-plan-alignment | categories/<category>/01_specify/<request-folder>/requirements.md と categories/<category>/02_plan/<request-folder>/plan.md |
+| Verify 実行後 | sdd-verify-evidence-recorder | categories/<category>/05_verify/<request-folder>/verification.md |
+
+- 実行主体は sdd-quality-gate（定義: [.github/agents/agents.md](.github/agents/agents.md)）
+- 上記 3 skill の結果を集約して quality-gate-report.md を出力
+
 ### 既存ドキュメント処理
 - `docs/source`: 暗黙知を仕様へ変換する場合のみ使用
 - `docs/staging`: 中間生成物の一時置き場（最終成果物ではない）
