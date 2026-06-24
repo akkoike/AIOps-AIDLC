@@ -1,28 +1,84 @@
-# SDD 開始プロンプト（ルーター判定用 / コピペ用）
+# SDD 開始プロンプト（ルーター判定用 / 対話型実行ガイド）
 
-以下をそのまま実行してください。
+## 🚀 クイックスタート
+
+### オプション 1: Copilot Chat で対話ヒアリング（推奨）
+
+実行方法:
+1. このチャットで「ヒアリング開始」と入力する。
+2. `.github/agents/sdd-hearing-subagent-sample.md` に従い、8 つの質問を順番に実施する（各質問で選択肢 + 自由入力）。
+3. 回答内容から `.github/agents/agents.md` の sdd-router によりカテゴリを自動判定する。
+4. 判定されたカテゴリのエージェント実装（例：01 なら `sdd-cat01-monitoring`、03 なら `sdd-cat03-incident`）が配下の全工程（`01_specify` → `02_plan` → `03_tasks` → `04_implement` → `05_verify` → `06_migration` → `output`）のファイルを順番に生成・記入する。
+5. 最後に sdd-quality-gate で品質を確認し、変更ファイル一覧をユーザーへ報告する。
+
+### オプション 2: 手動実行（プロンプト入力）
+
+以下のプロンプトをそのままコピーして、Claude Opus 4.8 に入力してください。
 
 ---
 
 あなたは SDD ルーターです。必ず `.github/agents/agents.md` に従って判定してください。
 
 ## 目的
-新規依頼を 12カテゴリのいずれかに振り分け、最初に更新すべきファイルと次アクションを確定する。
+以下のパイプラインを一気通貫で実行し、依頼に対応する全工程ファイルを生成する。
 
-## 入力（今回の依頼）
+```
+[STEP 1] ヒアリング
+  sdd-hearing-subagent-sample.md に従い 8 項目を収集する
+      ↓
+[STEP 2] カテゴリ判定
+  agents.md の sdd-router により 01〜12 のカテゴリを判定する
+      ↓
+[STEP 3] 全工程ファイル生成
+  判定カテゴリ別エージェント（sdd-cat01-monitoring / sdd-cat02-ops-tooling / ... / sdd-cat12-governance）により
+  01_specify → 02_plan → 03_tasks → 04_implement → 05_verify → 06_migration → output
+  を順番に生成・記入する
+      ↓
+[STEP 4] 品質ゲート
+  agents.md の sdd-quality-gate により整合チェックを実施する
+      ↓
+[STEP 5] 報告
+  変更ファイル一覧と次アクションをユーザーへ返す
+```
+
+## 入力（Claude Opus 4.8 でヒアリング）
+以下のサブエージェントを呼び出し、依頼者ヒアリングを実施してから判定すること。
+
+### サブエージェント呼び出し
+- subagent: Claude Opus 4.8
+- mission: SDDカテゴリ判定に必要な要件ヒアリング
+- context: [.github/agents/sdd-hearing-subagent-sample.md](../agents/sdd-hearing-subagent-sample.md) に従い、全ヒアリング質問と出力フォーマットを実施する
+
+ヒアリング手順:
+1. サブエージェントに sdd-hearing-subagent-sample.md の実行プロンプトを提供する
+2. 依頼種別・タイトル・本文・背景・期限・制約・成果物・受入条件の8項目をすべて収集する
+3. 回答不足がある場合は、同サブエージェントで追加質問を実施する
+4. 収集結果を下記のヒアリング結果テンプレートに転記する
+
+### ヒアリング結果（今回の依頼）
+- 依頼種別: {{新規 / 既存更新}}
 - 依頼タイトル: {{依頼タイトル}}
 - 依頼本文: {{依頼本文}}
 - 背景: {{背景}}
 - 期限/優先度: {{期限・優先度}}
 - 制約: {{制約}}
+- 成果物の期待形: {{成果物の期待形}}
+- 受入条件: {{受入条件}}
 
 ## 実施ルール
 1. まずカテゴリを 01〜12 から1つ選ぶ（複数候補がある場合は第1候補と第2候補を提示）。
 2. 判定根拠をキーワードベースで明記する。
 3. 更新対象は必ず `categories/<category>/` 配下を使う。
-4. 初回は `01_specify/requirements.md` を起点にする。
-5. 次に `02_plan/plan.md` へ進む条件を明記する。
-6. 最後に `sdd-quality-gate` をどのタイミングで挿入するか明記する。
+4. 初回から `01_specify` `02_plan` `03_tasks` `04_implement` `05_verify` `06_migration` `output` の全工程を更新対象に含める。
+5. `01_specify` だけでなく `02_plan` `03_tasks` `04_implement` `05_verify` `06_migration` `output` も、依頼ごとの新規フォルダ（`<request-folder>`）配下にマークダウンを配置する。
+   - フォルダ名は依頼タイトルを英数字ハイフン区切りへ正規化して作成する。
+   - 例: `ai-ops-task-web-ui`
+6. 次に `02_plan/<request-folder>/plan.md` へ進む条件を明記する。
+7. 最後に sdd-quality-gate をどのタイミングで挿入するか明記する。
+8. 各カテゴリに属さないスクリプトは `scripts/` 配下に新規作成して配置する。
+9. ヒアリング完了後は、**カテゴリ配下7工程のMarkdown生成を完了するまで**、`tools/` 配下への単独実装を禁止する。
+10. 実装アプリは原則 `categories/<category>/04_implement/<request-folder>/` に配置し、`tools/` は補助用途（共通ツール置き場）として扱う。
+11. もし先に `tools/` へ作成した場合は、同一ターン内でカテゴリ配下へ移設または複製し、工程ドキュメントへ参照を反映する。
 
 ## 12カテゴリ（判定先）
 - 01: 監視_モニタリング
@@ -46,10 +102,14 @@
 - 判定根拠キーワード: <3〜8個>
 
 ### 2) 初回更新対象
-- requirements: categories/<category>/01_specify/requirements.md
-- plan: categories/<category>/02_plan/plan.md
-- tasks: categories/<category>/03_tasks/tasks.md
-- verify: categories/<category>/05_verify/verification.md
+- requirements: categories/<category>/01_specify/<request-folder>/requirements.md
+- plan: categories/<category>/02_plan/<request-folder>/plan.md
+- tasks: categories/<category>/03_tasks/<request-folder>/tasks.md
+- implement: categories/<category>/04_implement/<request-folder>/implement.md
+- verify: categories/<category>/05_verify/<request-folder>/verification.md
+- migration: categories/<category>/06_migration/<request-folder>/migration.md
+- output: categories/<category>/output/<request-folder>/result.md
+- common-scripts: scripts/<script-name>.(ps1|py|sh)
 
 ### 3) 今回の着手手順（最大7手順）
 1. <手順>
@@ -72,9 +132,40 @@
 
 ---
 
-## 記入例（差し替えて使用）
-- 依頼タイトル: CPUアラート過検知の是正
-- 依頼本文: 夜間に通知が多すぎるため、しきい値と通知条件を見直したい。
-- 背景: 当番負荷が高く、一次対応品質が落ちている。
-- 期限/優先度: 今週中 / 高
-- 制約: 監視停止は禁止。本番影響を最小化すること。
+## ▶ ルーター判定後の続行指示
+
+ルーター判定（上記 1)〜6) の出力）が完了したら、**停止せずに直ちに以下を続行すること**。
+
+1. 判定されたカテゴリのエージェント実装ファイルを起動する
+   - **01_監視_モニタリング** → [sdd-cat01-monitoring.md](../agents/sdd-cat01-monitoring.md)
+   - **02_運用補佐ツール開発_管理** → [sdd-cat02-ops-tooling.md](../agents/sdd-cat02-ops-tooling.md)
+   - **03_インシデント_障害対応** → [sdd-cat03-incident.md](../agents/sdd-cat03-incident.md)
+   - **04_問い合わせ対応_サポート** → [sdd-cat04-support.md](../agents/sdd-cat04-support.md)
+   - **05_変更_リリース管理** → [sdd-cat05-change-release.md](../agents/sdd-cat05-change-release.md)
+   - **06_構成管理_資産管理** → [sdd-cat06-config-asset.md](../agents/sdd-cat06-config-asset.md)
+   - **07_セキュリティ管理** → [sdd-cat07-security.md](../agents/sdd-cat07-security.md)
+   - **08_バックアップ_リカバリ** → [sdd-cat08-backup-recovery.md](../agents/sdd-cat08-backup-recovery.md)
+   - **09_キャパシティ管理** → [sdd-cat09-capacity.md](../agents/sdd-cat09-capacity.md)
+   - **10_権限管理** → [sdd-cat10-access.md](../agents/sdd-cat10-access.md)
+   - **11_コスト管理** → [sdd-cat11-cost.md](../agents/sdd-cat11-cost.md)
+   - **12_統制管理** → [sdd-cat12-governance.md](../agents/sdd-cat12-governance.md)
+2. ヒアリング結果と判定カテゴリを入力として渡す
+3. カテゴリ別エージェントは下記の順で全工程ファイルを生成・記入する
+   - `01_specify/<request-folder>/requirements.md` — What / Why / 受入条件
+   - `02_plan/<request-folder>/plan.md` — 実装手順 / 影響範囲 / ロールバック方針
+   - `03_tasks/<request-folder>/tasks.md` — タスク分解 / 優先度 / 担当
+   - `04_implement/<request-folder>/implement.md` — 実装内容 / 変更履歴
+   - `05_verify/<request-folder>/verification.md` — 検証手順 / 証跡リンク
+   - `06_migration/<request-folder>/migration.md` — 展開手順 / 引き継ぎ事項
+   - `output/<request-folder>/result.md` — 最終成果物 / 利用者向け要約
+4. 全工程の生成完了後、`sdd-quality-gate` を実行して品質を確認する
+5. 変更ファイル一覧と次アクションをユーザーへ報告する
+
+## 実行ガード（必須）
+- ガード1: `01_specify` から `output` までの7ファイルが未作成の場合、実装工程以外を優先して生成する。
+- ガード2: `04_implement` で実装物を作成した場合、`05_verify` と `06_migration` を同一ターンで作成する。
+- ガード3: 最終報告時に、7工程の実ファイルパスを全て列挙する。
+- ガード4: 実行可能成果物（Web UI / CLI / バッチ / スクリプト）がある場合、`05_verify` で起動コマンドを実行し、終了コードと主要出力を記録する。
+- ガード5: Web UI がある場合、初回アクセス（`http://localhost:<port>`）の可否を確認し、結果と根拠を `05_verify` に記録する。未確認は PASS 禁止。
+
+

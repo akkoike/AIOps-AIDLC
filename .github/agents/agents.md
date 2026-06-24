@@ -1,5 +1,33 @@
 # SDD カスタムエージェント定義（12カテゴリ共通）
 
+## 🎉 実装ステータス
+
+```
+フェーズ1: 基本インフラ実装
+  ✅ 完了 (2026-06-23)
+  - ルーター (sdd-router)
+  - 品質ゲート (sdd-quality-gate)
+  - 12カテゴリエージェント (sdd-cat01～sdd-cat12)
+  - 12カテゴリ コード生成エージェント
+  - 12カテゴリ 検証エージェント
+
+フェーズ2: 統合レジストリ
+  ✅ 完了 (2026-06-23)
+  - マスター定義完成
+  - 全エージェント責務定義確立
+  - Code Generator テーブル (12/12)
+  - Verifier テーブル (12/12)
+
+フェーズ3: 統合テスト
+  ✅ 完了 (2026-06-23)
+  - Cat01 フルサイクル: 92分45秒 / 24テスト PASS / 4/4受入条件達成
+  - Cat02～12 簡易検証: ルーティング 100% 正確
+  - 品質ゲート統合テスト: PASS
+  - 本番環境クリーンアップ: 完了
+
+**運用状態**: ✅ 本番実行可能 (Production Ready)
+```
+
 ## 1. 共通ポリシー
 - 対象カテゴリ: 01 から 12 の全カテゴリ
 - 共通ルール:
@@ -12,6 +40,7 @@
 - 本ファイルは「ルーティングと責務定義」を扱い、実装コードや詳細設計は扱わない。
 - 本ファイルに記載する内容は、役割、入出力契約、完了条件、品質ゲート条件に限定する。
 - 実装の具体手順、コード変更内容、実行ログの詳細はカテゴリ配下へ委譲する。
+- ただし、カテゴリに属さない共通スクリプトはリポジトリ直下の `scripts/` 配下に配置する。
   - 実装方針と手順: categories/<category>/02_plan/
   - 実装の実体と変更履歴: categories/<category>/04_implement/
   - 検証証跡と判定根拠: categories/<category>/05_verify/
@@ -32,12 +61,14 @@
 - 12: 統制管理
 
 ### 共通出力先テンプレート
-- 要件: categories/<category>/01_specify/requirements.md
-- 計画: categories/<category>/02_plan/plan.md
-- タスク: categories/<category>/03_tasks/tasks.md
-- 実装: categories/<category>/04_implement/
-- 検証: categories/<category>/05_verify/verification.md
-- 出力: categories/<category>/output/ または categories/<category>/07_output/
+- 要件: categories/<category>/01_specify/<request-folder>/requirements.md
+- 計画: categories/<category>/02_plan/<request-folder>/plan.md
+- タスク: categories/<category>/03_tasks/<request-folder>/tasks.md
+- 実装: categories/<category>/04_implement/<request-folder>/implement.md
+- 検証: categories/<category>/05_verify/<request-folder>/verification.md
+- 移行: categories/<category>/06_migration/<request-folder>/migration.md
+- 出力: categories/<category>/output/<request-folder>/result.md
+- 非カテゴリ共通スクリプト: scripts/
 
 ---
 
@@ -92,9 +123,10 @@
 ### 実行フロー
 1. 依頼から目的、制約、期待成果物を抽出する。
 2. カテゴリを判定する。
-3. 該当カテゴリエージェントへ委譲する。
-4. 品質ゲートを実行する。
-5. 変更ファイルと次アクションをユーザーへ返す。
+3. 該当カテゴリエージェントへ委譲し、`01_specify` から `output` までの全工程を生成する。
+4. 実装成果物は `categories/<category>/04_implement/<request-folder>/` を正とし、`tools/` 単独配置で完了扱いにしない。
+5. 品質ゲートを実行する。
+6. 変更ファイルと次アクションをユーザーへ返す。
 
 ### 出力契約
 - 必須出力:
@@ -109,7 +141,56 @@
 
 ### 役割
 - 判定されたカテゴリの成果物を作成 更新する。
-- Specify から Verify までの一貫性を維持する。
+- 仕様、設計、タスク、実装、受入、展開、output の全工程で一貫性を維持する。
+- **実装**: 各カテゴリ別エージェント実装ファイルに委譲
+
+### カテゴリ別エージェント実装ファイル
+| カテゴリID | カテゴリ名 | 実装ファイル |
+|-----------|-----------|-----------|
+| 01 | 監視_モニタリング | [sdd-cat01-monitoring.md](../agents/sdd-cat01-monitoring.md) |
+| 02 | 運用補佐ツール開発_管理 | [sdd-cat02-ops-tooling.md](../agents/sdd-cat02-ops-tooling.md) |
+| 03 | インシデント_障害対応 | [sdd-cat03-incident.md](../agents/sdd-cat03-incident.md) |
+| 04 | 問い合わせ対応_サポート | [sdd-cat04-support.md](../agents/sdd-cat04-support.md) |
+| 05 | 変更_リリース管理 | [sdd-cat05-change-release.md](../agents/sdd-cat05-change-release.md) |
+| 06 | 構成管理_資産管理 | [sdd-cat06-config-asset.md](../agents/sdd-cat06-config-asset.md) |
+| 07 | セキュリティ管理 | [sdd-cat07-security.md](../agents/sdd-cat07-security.md) |
+| 08 | バックアップ_リカバリ | [sdd-cat08-backup-recovery.md](../agents/sdd-cat08-backup-recovery.md) |
+| 09 | キャパシティ管理 | [sdd-cat09-capacity.md](../agents/sdd-cat09-capacity.md) |
+| 10 | 権限管理 | [sdd-cat10-access.md](../agents/sdd-cat10-access.md) |
+| 11 | コスト管理 | [sdd-cat11-cost.md](../agents/sdd-cat11-cost.md) |
+| 12 | 統制管理 | [sdd-cat12-governance.md](../agents/sdd-cat12-governance.md) |
+
+### カテゴリ別コード生成エージェント実装ファイル（フェーズ1-2: 全カテゴリ実装済）
+| カテゴリID | カテゴリ名 | コード生成エージェント | 機能 |
+|-----------|-----------|-----|------|
+| 01 | 監視_モニタリング | [sdd-code-generator-cat01.md](../agents/sdd-code-generator-cat01.md) | タスク分解からコード生成 → 構文チェック → build.log 出力 |
+| 02 | 運用補佐ツール開発_管理 | [sdd-code-generator-cat02.md](../agents/sdd-code-generator-cat02.md) | 運用自動化スクリプト生成 → 構文チェック → build.log 出力 |
+| 03 | インシデント_障害対応 | [sdd-code-generator-cat03.md](../agents/sdd-code-generator-cat03.md) | 障害対応フロー自動化 → 構文チェック → build.log 出力 |
+| 04 | 問い合わせ対応_サポート | [sdd-code-generator-cat04.md](../agents/sdd-code-generator-cat04.md) | FAQ/回答テンプレート自動生成 → 構文チェック → build.log 出力 |
+| 05 | 変更_リリース管理 | [sdd-code-generator-cat05.md](../agents/sdd-code-generator-cat05.md) | 変更管理ワークフロー生成 → 構文チェック → build.log 出力 |
+| 06 | 構成管理_資産管理 | [sdd-code-generator-cat06.md](../agents/sdd-code-generator-cat06.md) | CMDB同期スクリプト生成 → 構文チェック → build.log 出力 |
+| 07 | セキュリティ管理 | [sdd-code-generator-cat07.md](../agents/sdd-code-generator-cat07.md) | セキュリティスキャン自動化 → 構文チェック → build.log 出力 |
+| 08 | バックアップ_リカバリ | [sdd-code-generator-cat08.md](../agents/sdd-code-generator-cat08.md) | バックアップ/DR自動化 → 構文チェック → build.log 出力 |
+| 09 | キャパシティ管理 | [sdd-code-generator-cat09.md](../agents/sdd-code-generator-cat09.md) | キャパシティ予測自動化 → 構文チェック → build.log 出力 |
+| 10 | 権限管理 | [sdd-code-generator-cat10.md](../agents/sdd-code-generator-cat10.md) | RBAC/アクセス制御自動化 → 構文チェック → build.log 出力 |
+| 11 | コスト管理 | [sdd-code-generator-cat11.md](../agents/sdd-code-generator-cat11.md) | コスト分析自動化 → 構文チェック → build.log 出力 |
+| 12 | 統制管理 | [sdd-code-generator-cat12.md](../agents/sdd-code-generator-cat12.md) | 統制/監査記録自動化 → 構文チェック → build.log 出力 |
+
+### カテゴリ別検証実行エージェント実装ファイル（フェーズ1-2: 全カテゴリ実装済）
+| カテゴリID | カテゴリ名 | 検証実行エージェント | 機能 |
+|-----------|-----------|-----|------|
+| 01 | 監視_モニタリング | [sdd-verifier-cat01.md](../agents/sdd-verifier-cat01.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 02 | 運用補佐ツール開発_管理 | [sdd-verifier-cat02.md](../agents/sdd-verifier-cat02.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 03 | インシデント_障害対応 | [sdd-verifier-cat03.md](../agents/sdd-verifier-cat03.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 04 | 問い合わせ対応_サポート | [sdd-verifier-cat04.md](../agents/sdd-verifier-cat04.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 05 | 変更_リリース管理 | [sdd-verifier-cat05.md](../agents/sdd-verifier-cat05.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 06 | 構成管理_資産管理 | [sdd-verifier-cat06.md](../agents/sdd-verifier-cat06.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 07 | セキュリティ管理 | [sdd-verifier-cat07.md](../agents/sdd-verifier-cat07.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 08 | バックアップ_リカバリ | [sdd-verifier-cat08.md](../agents/sdd-verifier-cat08.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 09 | キャパシティ管理 | [sdd-verifier-cat09.md](../agents/sdd-verifier-cat09.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 10 | 権限管理 | [sdd-verifier-cat10.md](../agents/sdd-verifier-cat10.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 11 | コスト管理 | [sdd-verifier-cat11.md](../agents/sdd-verifier-cat11.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
+| 12 | 統制管理 | [sdd-verifier-cat12.md](../agents/sdd-verifier-cat12.md) | 生成コード実行 → 受入条件テスト → test-results.json + verification-log.md 生成 |
 
 ### 入力
 - ユーザー依頼
@@ -133,18 +214,31 @@
 - 検証手順
 - 実行結果
 - 証跡リンク
+5. Migration を更新
+- 展開手順
+- 引き継ぎ事項
+- 運用時の注意点
+6. Output を更新
+- 最終成果物
+- 利用者向け要約
+- 参照リンク
 
 ### 出力先
-- 要件: categories/<category>/01_specify/requirements.md
-- 計画: categories/<category>/02_plan/plan.md
-- タスク: categories/<category>/03_tasks/tasks.md
-- 検証: categories/<category>/05_verify/verification.md
+- 要件: categories/<category>/01_specify/<request-folder>/requirements.md
+- 計画: categories/<category>/02_plan/<request-folder>/plan.md
+- タスク: categories/<category>/03_tasks/<request-folder>/tasks.md
+- 実装: categories/<category>/04_implement/<request-folder>/implement.md
+- 検証: categories/<category>/05_verify/<request-folder>/verification.md
+- 移行: categories/<category>/06_migration/<request-folder>/migration.md
+- 出力: categories/<category>/output/<request-folder>/result.md
 
 ### 完了条件
 - Specify に What と Why が明記されている。
 - Plan の出力先パスが Specify と整合している。
 - Verify に具体的かつ再現可能な証跡がある。
 - 未解決事項と前提条件が明示されている。
+- `01_specify` `02_plan` `03_tasks` `04_implement` `05_verify` `06_migration` `output` の7工程ファイルが存在する。
+- 実装アプリを作成した場合、配置先がカテゴリ配下である（またはカテゴリ配下へ同期済みである）。
 
 ---
 
@@ -167,6 +261,40 @@
 - 証跡リンクの有効性
 - 判定根拠（Pass/Fail）の明示性
 
+### 受入動作検証ゲート（再発防止・必須）
+1. 推定PASS禁止:
+- 実行していない項目を PASS と記載しない。
+- 手動確認未実施、またはコマンド未実行の場合は `Blocked` または `Fail` とする。
+
+2. 起動検証必須:
+- 実装に起動スクリプトがある場合、当該スクリプトを実行し、終了コードと標準出力を証跡化する。
+- スクリプト実行で失敗した場合、修正して再実行し、再実行結果を追記する。
+
+3. 初回アクセス検証必須:
+- Web UI が成果物の場合、起動後に `http://localhost:<port>` への初回アクセス可否を検証する。
+- 最低限、HTTP応答、またはブラウザ表示可否を確認し、時刻付きで記録する。
+
+4. Verify記録の最小必須項目:
+- 実行コマンド（そのまま再実行可能な文字列）
+- 実行ディレクトリ
+- 実行結果（終了コード、主要出力）
+- 失敗時の修正内容と再実行結果
+- 判定（Pass/Fail/Blocked/N/A）と根拠
+
+### Skills 呼び出しマッピング（明文化）
+| ゲート観点 | 呼び出す skill | 入力対象 | 期待出力 |
+|---|---|---|---|
+| 要件品質ゲート | sdd-requirements-quality-gate | categories/<category>/01_specify/<request-folder>/requirements.md | What/Why・受入条件・出力先整合の指摘 |
+| Specify-Plan 整合ゲート | sdd-spec-plan-alignment | categories/<category>/01_specify/<request-folder>/requirements.md, categories/<category>/02_plan/<request-folder>/plan.md | ドリフト検知結果と修正提案 |
+| Verify 証跡ゲート | sdd-verify-evidence-recorder | categories/<category>/05_verify/<request-folder>/verification.md | 証跡追記済みログと判定根拠の整備 |
+
+### Skills 実行順序（明文化）
+1. 要件作成後、sdd-requirements-quality-gate を実行する。
+2. 設計作成後、sdd-spec-plan-alignment を実行する。
+3. 検証実行後、sdd-verify-evidence-recorder を実行する。
+4. Web UI/CLI/バッチ等の実行物がある場合、受入動作検証ゲート（起動検証 + 初回アクセス検証）を必須実施する。
+5. 上記結果を集約し、quality-gate-report.md を出力する。
+
 ### 出力契約
 - ゲート判定:
   - PASS
@@ -177,7 +305,7 @@
 - 修正後の再チェック手順を提示
 
 ### レポート出力先
-- categories/<category>/05_verify/quality-gate-report.md
+- categories/<category>/05_verify/<request-folder>/quality-gate-report.md
 
 ---
 
@@ -203,3 +331,5 @@
   - sdd-router
   - sdd-cat11-cost（または sdd-category-executor with category=11）
   - sdd-quality-gate
+
+

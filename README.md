@@ -1,39 +1,57 @@
 # AIOps-SDD ワークスペース利用ガイド
 
-このリポジトリは、運用業務ドキュメントを SDD（Specification Driven Development）形式で整理し、カテゴリごとに要件定義から成果物出力までを一貫管理するためのワークスペースです。
+このリポジトリは、運用業務ドキュメントを SDD（Specification Driven Development）形式で整理し、AI 駆動ワークフローで12カテゴリの要件定義から成果物出力までを一貫管理するためのワークスペースです。
 
 ## 1. 目的
 
-- 非構造化ドキュメント（pptx/docx/xlsx/pdf）をカテゴリ単位で管理する
-- SDD の工程に沿って、要件・設計・タスク・検証・引き継ぎを Markdown で管理する
-- 最終成果物をカテゴリ単位で output に集約する
+- 運用依頼をヒアリング → カテゴリ判定 → 7工程全自動実行する SDD パイプラインの提供
+- 12カテゴリの AI 駆動実行エージェント（sdd-cat01 ～ sdd-cat12）による一貫管理
+- 要件・設計・タスク・検証・引き継ぎの全工程を Markdown で管理
+- 最終成果物をカテゴリ単位で output に集約
 
 ## 2. 主要フォルダ
 
+### プロジェクト管理
 - [Constitution.md](Constitution.md)
   - プロジェクトの最上位原則（存在意義、基本原則、スコープ、制約、ガバナンス）
 - [Account/accounts.yml](Account/accounts.yml)
   - 対象アカウントやサブスクリプション情報を管理
+
+### SDD パイプライン実装
+- [.github/agents/agents.md](.github/agents/agents.md)
+  - マスター定義：ルーター、品質ゲート、カテゴリ別エージェント契約の責務定義
+- [.github/prompts/router-start.md](.github/prompts/router-start.md) ✅ **SDD エントリーポイント**
+  - ヒアリング → カテゴリ判定 → 全工程実行パイプライン
+- [.github/agents/sdd-hearing-subagent-sample.md](.github/agents/sdd-hearing-subagent-sample.md)
+  - **ヒアリング専用**：8項目（依頼種別、タイトル、本文、背景、期限、制約、成果物、受入条件）を収集
+
+### 12個のカテゴリ別エージェント実装（`.github/agents/`）
+- [sdd-cat01-monitoring.md](.github/agents/sdd-cat01-monitoring.md) — 01_監視_モニタリング
+- [sdd-cat02-ops-tooling.md](.github/agents/sdd-cat02-ops-tooling.md) — 02_運用補佐ツール開発_管理
+- [sdd-cat03-incident.md](.github/agents/sdd-cat03-incident.md) — 03_インシデント_障害対応
+- [sdd-cat04-support.md](.github/agents/sdd-cat04-support.md) — 04_問い合わせ対応_サポート
+- [sdd-cat05-change-release.md](.github/agents/sdd-cat05-change-release.md) — 05_変更_リリース管理
+- [sdd-cat06-config-asset.md](.github/agents/sdd-cat06-config-asset.md) — 06_構成管理_資産管理
+- [sdd-cat07-security.md](.github/agents/sdd-cat07-security.md) — 07_セキュリティ管理
+- [sdd-cat08-backup-recovery.md](.github/agents/sdd-cat08-backup-recovery.md) — 08_バックアップ_リカバリ
+- [sdd-cat09-capacity.md](.github/agents/sdd-cat09-capacity.md) — 09_キャパシティ管理
+- [sdd-cat10-access.md](.github/agents/sdd-cat10-access.md) — 10_権限管理
+- [sdd-cat11-cost.md](.github/agents/sdd-cat11-cost.md) — 11_コスト管理
+- [sdd-cat12-governance.md](.github/agents/sdd-cat12-governance.md) — 12_統制管理
+
+### カテゴリ本体
 - [categories](categories)
-  - 12カテゴリの SDD 管理本体
-- [docs/source](docs/source)
-  - 変換元の非構造化ドキュメント配置先
-- [docs/staging](docs/staging)
-  - 変換時の中間データ一時置き場
-- [tools](tools)
-  - 補助ツール格納先
-- [.github/skills](.github/skills)
-  - SDD運用で使うスキル定義
-- [.gitignore](.gitignore)
-  - バイナリファイルや中間生成物などの Git 管理除外ルール
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-  - ブランチ、コミット、PR、タグ運用の実務ルール
-- [CHANGELOG.md](CHANGELOG.md)
-  - リリース履歴とバージョン記録
-- [.github/pull_request_template.md](.github/pull_request_template.md)
-  - PR 作成時に使用する標準テンプレート
-- [.github/BRANCH_PROTECTION.md](.github/BRANCH_PROTECTION.md)
-  - GitHub ブランチ保護設定手順
+  - 12カテゴリ × 7工程の SDD 実行フォルダ構造
+  - 各カテゴリ配下：01_specify → 02_plan → 03_tasks → 04_implement → 05_verify → 06_migration → output
+
+### サポートファイル
+- [docs/source](docs/source) — 暗黙知を仕様へ変換する際の変換元ドキュメント配置先
+- [docs/staging](docs/staging) — 変換時の中間データ一時置き場
+- [.github/skills](.github/skills) — SDD 品質ゲートスキル
+- [tools](tools) — 補助ツール格納先
+- [.gitignore](.gitignore) — Git 管理除外ルール
+- [CONTRIBUTING.md](CONTRIBUTING.md) — ブランチ、PR、タグ運用ルール
+- [CHANGELOG.md](CHANGELOG.md) — リリース履歴とバージョン記録
 
 ## 3. カテゴリ標準構成
 
@@ -53,44 +71,148 @@
 - [categories/01_監視_モニタリング](categories/01_監視_モニタリング)
 - [categories/02_運用補佐ツール開発_管理](categories/02_運用補佐ツール開発_管理)
 
-## 4. 基本運用フロー
+## 4. SDD パイプライン実行フロー（推奨）
 
-1. 入力資料をカテゴリ別に配置する
-   - 例: [docs/source](docs/source) 配下の該当カテゴリに配置
-2. 必要に応じて中間変換結果を staging に出力する
-   - [docs/staging](docs/staging)
-3. カテゴリ配下の SDD 工程フォルダへ反映する
-   - 01_specify で要件整理
-   - 02_plan で設計・方針確定
-   - 03_tasks で実施タスク化
-   - 04_implement で実装・整備
-   - 05_verify で受入/証跡確認
-   - 06_migration で引き継ぎ整理
-4. 最終成果物を output に集約する
+```
+1. [ヒアリング開始]
+   → sdd-hearing-subagent-sample.md で 8 項目を対話的に収集
 
-## 5. 作業開始時のチェック
+2. [カテゴリ自動判定]
+   → sdd-router が依頼内容からカテゴリ（01-12）を自動判定
 
-- 対象カテゴリの README.md を確認する
-- 対象カテゴリに 01_specify から output まで揃っていることを確認する
-- カテゴリ直下に README.md があることを確認する
-- 入力資料の配置先が正しいカテゴリかを確認する
-- [Constitution.md](Constitution.md) の原則（What/Why と How の分離など）に沿っていることを確認する
-- コミット前に [.gitignore](.gitignore) の除外対象（pptx/docx/xlsx/pdf、staging 中間ファイル等）を確認する
+3. [カテゴリ別エージェント実行]
+   → 判定されたカテゴリのエージェント（sdd-cat01 ～ sdd-cat12）が起動
+   → 以下の 7 工程を順番に全自動生成：
+      ✓ 01_specify/<request-folder>/requirements.md — 要件仕様書
+      ✓ 02_plan/<request-folder>/plan.md — 実装設計
+      ✓ 03_tasks/<request-folder>/tasks.md — タスク分解
+      ✓ 04_implement/<request-folder>/implement.md — 実装記録
+      ✓ 05_verify/<request-folder>/verification.md — 検証ログ
+      ✓ 06_migration/<request-folder>/migration.md — 本番展開手順
+      ✓ output/<request-folder>/result.md — 最終成果物
 
-## 6. 推奨作業順
+4. [品質ゲート実行]
+   → sdd-quality-gate が整合チェック
 
+5. [完了報告]
+   → 変更ファイル一覧と次アクションをユーザーへ通知
+```
+
+**🚀 開始方法**
+
+1. Copilot Chat で [router-start.md](.github/prompts/router-start.md) を実行
+2. 「ヒアリング開始」と入力
+3. 対話的に 8 項目を回答
+4. 自動的に全 7 工程が生成される
+
+## 5. フェーズ進捗状況
+
+```
+フェーズ1: エージェントインフラ実装
+  ✅ COMPLETE (2026-06-23)
+  - ルーター (sdd-router) 実装
+  - 品質ゲート (sdd-quality-gate) 実装
+  - 12カテゴリエージェント (sdd-cat01～sdd-cat12) 実装
+  - 12カテゴリ コード生成エージェント (sdd-code-generator-cat01～12) 実装
+  - 12カテゴリ 検証エージェント (sdd-verifier-cat01～12) 実装
+
+フェーズ2: エージェント統合レジストリ
+  ✅ COMPLETE (2026-06-23)
+  - マスター定義 (.github/agents/agents.md) 完成
+  - 全エージェント責務定義確立
+  - 全カテゴリ Code Generator テーブル完成
+  - 全カテゴリ Verifier テーブル完成
+
+フェーズ3: 統合テスト実施
+  ✅ COMPLETE (2026-06-23)
+  - Cat01 フルサイクルテスト: 92分45秒 (PASS)
+    - Specify → Plan → Tasks → Implement → Verify → Migration → Output
+    - 24/24 テストケース PASS (100%)
+    - 4/4 受入条件達成 (100%)
+  - Cat02～12 簡易検証: 全ルーティング確認 (PASS)
+  - 品質ゲート統合テスト: 実施 (PASS)
+  - 環境クリーンアップ: 完了 ✓
+  
+  **ステータス**: 本番環境準備完了 🎉
+```
+
+## 6. 各カテゴリ別エージェント（sdd-cat01 ～ sdd-cat12）の役割
+
+すべてのカテゴリエージェントは共通の 7 工程テンプレートに従います：
+
+| # | カテゴリ | エージェント | 主な責務 |
+|---|---------|------------|----------|
+| 01 | 監視_モニタリング | sdd-cat01-monitoring | ダッシュボード、メトリクス、アラート |
+| 02 | 運用補佐ツール開発_管理 | sdd-cat02-ops-tooling | 自動化スクリプト、工数削減 |
+| 03 | インシデント_障害対応 | sdd-cat03-incident | 障害対応フロー、RCA |
+| 04 | 問い合わせ対応_サポート | sdd-cat04-support | FAQ、回答テンプレート |
+| 05 | 変更_リリース管理 | sdd-cat05-change-release | 変更申請、CAB |
+| 06 | 構成管理_資産管理 | sdd-cat06-config-asset | CMDB、資産台帳 |
+| 07 | セキュリティ管理 | sdd-cat07-security | 脆弱性対応、監査 |
+| 08 | バックアップ_リカバリ | sdd-cat08-backup-recovery | バックアップ戦略、DR |
+| 09 | キャパシティ管理 | sdd-cat09-capacity | 性能予測、サイジング |
+| 10 | 権限管理 | sdd-cat10-access | IAM、RBAC |
+| 11 | コスト管理 | sdd-cat11-cost | 予算管理、最適化 |
+| 12 | 統制管理 | sdd-cat12-governance | 監査、内部統制 |
+
+## 7. 作業開始時のチェック
+
+### SDD パイプライン実行時
+- [router-start.md](.github/prompts/router-start.md) を開く
+- 「ヒアリング開始」と入力して対話を開始
+- 8 項目に回答（ルーターが自動判定）
+- 生成されたファイルを確認
+
+### 手作業での修正が必要な場合
+- 対象カテゴリの README.md を確認
+- `categories/<category>/<phase>/<request-folder>/` 配下のファイルを確認
+- [Constitution.md](Constitution.md) の原則に沿っていることを確認
+- [.github/skills](.github/skills) のスキルで品質検証
+
+## 8. 推奨作業順
+
+### パイプライン経由（推奨 ✅）
+1. [router-start.md](.github/prompts/router-start.md) を実行
+2. 対話的にヒアリング実施
+3. 全 7 工程が自動生成
+4. 品質ゲートで検証
+5. 必要に応じて手作業で調整
+
+### 手作業での作業が必要な場合
 1. [Account/accounts.yml](Account/accounts.yml) で対象範囲を確認
 2. 対象カテゴリの 01_specify から更新開始
 3. 02_plan と 03_tasks を更新
 4. 04_implement と 05_verify を更新
 5. 06_migration と output を最終化
 
-## 7. 補足
+## 9. 補足
 
-- staging は一時置き場です。最終成果物は categories 配下へ移動して管理してください
-- カテゴリ間で共通の運用ルールを使うことで、レビューや引き継ぎを効率化できます
+### SDD パイプラインの仕組み
+- **自動実行**: [router-start.md](.github/prompts/router-start.md) → [.github/agents/](.github/agents/) パイプラインで全 7 工程が自動生成
+- **Request Folder**: 各依頼ごとに `<request-folder>` を作成して複数依頼を管理
+- **品質保証**: 3 つの品質ゲートスキル（要件品質、Specify-Plan整合、Verify証跡）で全文書を検証
 
-## 8. ガバナンスとコミットルール
+### 品質ゲート skills 呼び出し対応
+| タイミング | 呼び出す skill | 対象ファイル |
+|---|---|---|
+| Specify 作成後 | sdd-requirements-quality-gate | categories/<category>/01_specify/<request-folder>/requirements.md |
+| Plan 作成後 | sdd-spec-plan-alignment | categories/<category>/01_specify/<request-folder>/requirements.md と categories/<category>/02_plan/<request-folder>/plan.md |
+| Verify 実行後 | sdd-verify-evidence-recorder | categories/<category>/05_verify/<request-folder>/verification.md |
+
+- 実行主体は sdd-quality-gate（定義: [.github/agents/agents.md](.github/agents/agents.md)）
+- 上記 3 skill の結果を集約して quality-gate-report.md を出力
+
+### 既存ドキュメント処理
+- `docs/source`: 暗黙知を仕様へ変換する場合のみ使用
+- `docs/staging`: 中間生成物の一時置き場（最終成果物ではない）
+- 通常は `categories/` 配下を直接更新
+
+### 共通ルール
+- カテゴリ間で統一された 7 工程フォーマットを使用
+- すべてのファイルは Markdown で管理（Office 系は Git 管理対象外）
+- 要件（Specify）と設計（Plan）の整合を常に維持
+
+## 10. ガバナンスとコミットルール
 
 - 最上位方針は [Constitution.md](Constitution.md) を正とし、カテゴリ仕様はこれに準拠して更新してください
 - Office 系の原本（pptx/docx/xlsx/pdf）は Git 管理対象外です（詳細は [.gitignore](.gitignore)）
