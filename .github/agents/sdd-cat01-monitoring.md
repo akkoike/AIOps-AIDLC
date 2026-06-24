@@ -19,6 +19,31 @@ scope: "ヒアリング結果を受け入れ、01_specify → 02_plan → 03_tas
 
 ---
 
+## 🚫 **Specify優先実行フロー（必須）**
+
+### 実行ガード条件
+このエージェントは **以下の順序を厳密に守ること**：
+
+```
+STEP 1 [MUST]: 01_specify/<request-folder>/requirements.md を作成
+   ↓
+STEP 2 [MUST]: 仕様品質ゲート（sdd-requirements-quality-gate）で合格を確認
+   ↓
+STEP 3 [MUST]: 02_plan/<request-folder>/plan.md を作成
+   ↓
+STEP 4 [MUST]: 03_tasks/<request-folder>/tasks.md を作成
+   ↓
+STEP 5 [ONLY THEN]: 設計・実装を開始
+```
+
+### 違反時の対応
+- ❌ requirements.md が **存在しない** 状態で実装設計を開始しない
+- ❌ Specify段階でHow（実装詳細）を含めない
+- ❌ plan.md が完成しないまま tasks.md を生成しない
+- ❌ 品質ゲート不合格のまま次工程へ進まない
+
+---
+
 ## 入力仕様
 
 ### ヒアリング結果（sdd-hearing-intake からの出力）
