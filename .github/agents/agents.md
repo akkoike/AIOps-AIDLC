@@ -137,11 +137,69 @@
 
 ---
 
-## 3. Agent: sdd-category-executor（共通カテゴリ実行）
+## 3. フェーズ連鎖定義（7フェーズ自動連鎖ワークフロー）
 
-### 役割
-- 判定されたカテゴリの成果物を作成 更新する。
-- 仕様、設計、タスク、実装、受入、展開、output の全工程で一貫性を維持する。
+### ワークフロー全体図
+```
+[ヒアリング結果]
+    ↓
+【Phase 1】Specify-Plan同期工程
+  ├─ 01_specify/<req>/requirements.md (What/Why)
+  ├─ 02_plan/<req>/plan.md (How)
+  └─ sdd-spec-plan-alignment 実行
+    ↓ [同期PASS]
+【Phase 2】Tasks工程
+  └─ 03_tasks/<req>/tasks.md 生成
+    ↓
+【Phase 3】Implement工程
+  ├─ sdd-code-generator-cat## 起動
+  └─ 04_implement/<req>/implement.md 更新
+    ↓ [BUILD SUCCESS]
+【Phase 4】Verify工程
+  ├─ sdd-verifier-cat## 起動
+  └─ 05_verify/<req>/verification.md + test-results.json
+    ↓ [PASS RATE 100%]
+【Phase 5】Migration工程
+  └─ 06_migration/<req>/migration.md
+    ↓
+【Phase 6】Output工程
+  └─ output/<req>/result.md
+    ↓
+【Phase 7】品質ゲート
+  └─ 05_verify/<req>/quality-gate-report.md
+    ↓ [QUALITY PASS]
+[完了]
+```
+
+### フェーズ間進行条件（明文化）
+| フェーズ | 次フェーズ進行条件 | 失敗時アクション |
+|---------|------------------|------------------|
+| Phase 1 | sdd-spec-plan-alignment: PASS | 修正 → 再実行 |
+| Phase 2 | タスク数 ≥ 3 | タスク追加 |
+| Phase 3 | build.log: BUILD SUCCESS | コード修正 → リビルド |
+| Phase 4 | test-results.json: pass_rate = 100% | テスト失敗分析 → 修正 |
+| Phase 5 | 出力完了（条件なし） | - |
+| Phase 6 | 出力完了（条件なし） | - |
+| Phase 7 | quality-gate-report.md: PASS | 指摘項目修正 → 再ゲート |
+
+### 各フェーズ実行エージェントマッピング
+| フェーズ | 実行エージェント | 担当タスク |
+|---------|-----------------|----------|
+| Phase 1 | sdd-cat01～12 (カテゴリ別) | requirements.md + plan.md 生成 + sdd-spec-plan-alignment |
+| Phase 2 | sdd-cat01～12 (カテゴリ別) | tasks.md 生成 |
+| Phase 3 | sdd-code-generator-cat01～12 | コード生成 + build.log |
+| Phase 4 | sdd-verifier-cat01～12 | テスト実行 + verification.md + test-results.json |
+| Phase 5 | sdd-cat01～12 (カテゴリ別) | migration.md 生成 |
+| Phase 6 | sdd-cat01～12 (カテゴリ別) | result.md 生成 |
+| Phase 7 | sdd-quality-gate | 全工程品質チェック + quality-gate-report.md |
+
+---
+
+## 4. Agent: sdd-category-executor（共通カテゴリ実行）
+
+### 役所
+- 判定されたカテゴリの成果物を作成・更新する。
+- 7フェーズ連鎖ワークフローに従い、各フェーズを自動実行する。
 - **実装**: 各カテゴリ別エージェント実装ファイルに委譲
 
 ### カテゴリ別エージェント実装ファイル
@@ -242,11 +300,12 @@
 
 ---
 
-## 4. Agent: sdd-quality-gate
+## 5. Agent: sdd-quality-gate
 
 ### 役割
-- 生成された成果物全体に品質ゲートを適用する。
+- 生成された成果物全体に品質ゲートを適用する（Phase 7）。
 - 不足やドリフトを検知し、修正ポイントを提示する。
+- **実行タイミング**: Phase 6 (Output) 完了後に自動実行
 
 ### チェック観点
 1. 要件品質ゲート
@@ -309,7 +368,7 @@
 
 ---
 
-## 5. ルーター呼び出し例（全カテゴリ向け）
+## 6. ルーター呼び出し例（全カテゴリ向け）
 
 ### 例1: 監視要件の新規作成
 - 入力: CPU アラートしきい値を見直し、夜間通知を抑制したい。

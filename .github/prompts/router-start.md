@@ -2,14 +2,23 @@
 
 ## 🚀 クイックスタート
 
-### オプション 1: Copilot Chat で対話ヒアリング（推奨）
+### オプション 1: Copilot Chat で対話ヒアリング（推奨 / 新型7フェーズ自動連鎖）
 
 実行方法:
 1. このチャットで「ヒアリング開始」と入力する。
 2. `.github/agents/sdd-hearing-subagent-sample.md` に従い、8 つの質問を順番に実施する（各質問で選択肢 + 自由入力）。
 3. 回答内容から `.github/agents/agents.md` の sdd-router によりカテゴリを自動判定する。
-4. 判定されたカテゴリのエージェント実装（例：01 なら `sdd-cat01-monitoring`、03 なら `sdd-cat03-incident`）が配下の全工程（`01_specify` → `02_plan` → `03_tasks` → `04_implement` → `05_verify` → `06_migration` → `output`）のファイルを順番に生成・記入する。
-5. 最後に sdd-quality-gate で品質を確認し、変更ファイル一覧をユーザーへ報告する。
+4. 判定されたカテゴリのエージェント実装（例：01 なら `sdd-cat01-monitoring`、02 なら `sdd-cat02-ops-tooling`）が以下の 7 フェーズを **自動連鎖** で実行：
+   - **Phase 1**: Specify-Plan同期工程 → requirements.md (What/Why) + plan.md (How) 同時生成 + sdd-spec-plan-alignment で同期確認
+   - **Phase 2**: Tasks工程 → tasks.md 自動生成
+   - **Phase 3**: Implement工程 → sdd-code-generator-cat# でコード生成 + build.log
+   - **Phase 4**: Verify工程 → sdd-verifier-cat# で受入検証 + verification.md + test-results.json
+   - **Phase 5**: Migration工程 → migration.md 自動生成
+   - **Phase 6**: Output工程 → result.md 自動生成
+   - **Phase 7**: 品質ゲート → sdd-quality-gate で全工程品質チェック + quality-gate-report.md
+5. 全フェーズ完了後、変更ファイル一覧と品質判定をユーザーへ報告する。
+
+**重要**: 各フェーズ進行条件は agents.md 「フェーズ連鎖定義」を参照。前フェーズが条件を満たさない場合は修正して再実行する。
 
 ### オプション 2: 手動実行（プロンプト入力）
 
